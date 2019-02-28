@@ -7,21 +7,21 @@ defmodule Docker.Struct.Container do
           image: binary,
           name: binary,
           ports: [binary | {binary, binary}],
-          env: [{binary, binary}]
+          env: map()
         }
 
   defstruct id: "",
             image: "",
             name: "",
             ports: [],
-            env: []
+            env: %{}
 
   def test() do
     %__MODULE__{
       image: "postgres",
       name: "pg_test",
       ports: [5432],
-      env: ["POSTGRES_PASSWORD": "portgres"]
+      env: %{"POSTGRES_PASSWORD" => "portgres"}
     }
   end
 end

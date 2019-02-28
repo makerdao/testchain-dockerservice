@@ -17,7 +17,7 @@ defmodule Docker do
 
   # docker run --name=postgres-vdb -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres
   @spec start_rm(Docker.Struct.Container.t()) ::
-          {:ok, Docker.Struct.Container.t()} | {:error, term}
+          {:ok, binary} | {:error, term}
   def start_rm(%Container{id: id}) when bit_size(id) > 0,
     do: {:error, "Could not start container with id"}
 

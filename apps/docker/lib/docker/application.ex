@@ -11,7 +11,7 @@ defmodule Docker.Application do
       # Starts a worker by calling: Docker.Worker.start_link(arg)
       # {Docker.Worker, arg},
       Docker.Events,
-      Docker.BackendProxyNodeConnector
+      Docker.Nats
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

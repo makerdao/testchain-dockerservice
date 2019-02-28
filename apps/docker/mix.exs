@@ -26,7 +26,8 @@ defmodule Docker.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:gen_stage, "~> 0.14"}
+      {:gnat, "~> 0.6"},
+      {:jason, "~> 1.1"}
     ]
   end
 end

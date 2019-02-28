@@ -34,6 +34,11 @@ defmodule Docker.Events do
   @doc false
   def handle_info({_port, {:data, msg}}, port) do
     Logger.debug("Got docker event: #{inspect(msg)}")
+
+    Docker.Nats.push(
+      {Application.get_env(:docker, :nats_docker_events_topic, "Docker.Events"), msg}
+    )
+
     {:noreply, port}
   end
 

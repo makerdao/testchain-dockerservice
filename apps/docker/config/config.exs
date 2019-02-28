@@ -13,4 +13,8 @@ config :docker, wrapper_file: Path.expand("#{__DIR__}/../../../priv/wrapper.sh")
 config :docker, backend_proxy_node: :"testchain_backendgateway@127.0.0.1"
 config :docker, backend_proxy_node_reconnection_timeout: 5_000
 
+config :docker, nats: %{host: "localhost", port: 4222}
+config :docker, nats_topic: "Prefix.Docker.Request"
+config :docker, nats_docker_events_topic: "Prefix.Docker.Events"
+
 #     import_config "#{Mix.env()}.exs"

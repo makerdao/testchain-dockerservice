@@ -64,11 +64,27 @@ defmodule Docker.Events do
 
     port =
       {:spawn_executable, wrapper}
-      |> Port.open([:binary, :exit_status, args: [docker, "events"]])
+      |> Port.open([:binary, :exit_status, args: [docker] ++ get_args()])
 
     Port.monitor(port)
     Process.link(port)
 
     port
+  end
+
+  defp get_args() do
+    [
+      "events",
+      "--filter",
+      "event=start",
+      "--filter",
+      "event=create",
+      "--filter",
+      "event=die",
+      "--filter",
+      "event=stop",
+      "--filter",
+      "event=kill"
+    ]
   end
 end

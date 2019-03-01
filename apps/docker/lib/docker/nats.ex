@@ -15,9 +15,10 @@ defmodule Docker.Nats do
     {:ok, conn} = Gnat.start_link(nats_config)
     Logger.debug("Connected to Nats.io with config #{inspect(nats_config)}")
 
-    {:ok, sub} = Gnat.sub(conn, self(), topic())
+    # {:ok, sub} = Gnat.sub(conn, self(), topic())
 
-    {:ok, %{conn: conn, sub: sub}}
+    # {:ok, %{conn: conn, sub: sub}}
+    {:ok, %{conn: conn}}
   end
 
   def handle_cast({:push, {topic, event}}, %{conn: conn} = state) when is_binary(topic) do

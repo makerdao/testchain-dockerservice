@@ -7,13 +7,11 @@ defmodule Docker do
 
   alias Docker.Struct.Container
 
-  @docker System.find_executable("docker")
-
   @doc """
   Get docker executable
   """
   @spec executable!() :: binary
-  def executable!(), do: @docker
+  def executable!(), do: System.find_executable("docker")
 
   # docker run --name=postgres-vdb -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres
   @spec start_rm(Docker.Struct.Container.t()) ::

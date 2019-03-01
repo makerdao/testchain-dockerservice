@@ -1,0 +1,8 @@
+_build/
+deps/
+.git/
+.gitignore
+.gitmodules
+Dockerfile
+Makefile
+README*

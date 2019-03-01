@@ -17,19 +17,23 @@ defmodule Docker do
 
   # docker run --name=postgres-vdb -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres
   @spec start_rm(Docker.Struct.Container.t()) ::
-          {:ok, binary} | {:error, term}
+          {:ok, Docker.Struct.Container.t()} | {:error, term}
   def start_rm(%Container{id: id}) when bit_size(id) > 0,
     do: {:error, "Could not start container with id"}
 
   def start_rm(%Container{image: ""}),
     do: {:error, "Could not start container without image"}
 
+  def start_rm(%Container{name: ""} = container),
+    do: start_rm(%Container{container | name: random_string()})
+
   def start_rm(%Container{} = container) do
     Logger.debug("Try to start new container #{inspect(container)}")
 
     case System.cmd(executable!(), build_start_params(container)) do
       {id, 0} ->
-        {:ok, String.replace(id, "\n", "")}
+        id = String.replace(id, "\n", "")
+        {:ok, %Container{container | id: id}}
 
       {err, exit_status} ->
         Logger.error("Failed to start container with code: #{exit_status} - #{inspect(err)}")
@@ -91,5 +95,9 @@ defmodule Docker do
     env
     |> Enum.map(fn {key, val} -> ["--env", "#{key}=#{val}"] end)
     |> List.flatten()
+  end
+
+  defp random_string(length \\ 48) do
+    :crypto.strong_rand_bytes(length) |> Base.url_encode64() |> binary_part(0, length)
   end
 end

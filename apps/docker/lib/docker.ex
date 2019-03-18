@@ -25,8 +25,12 @@ defmodule Docker do
   def start_rm(%Container{name: ""} = container),
     do: start_rm(%Container{container | name: random_string()})
 
-  def start_rm(%Container{} = container) do
+  def start_rm(%Container{network: network} = container) do
     Logger.debug("Try to start new container #{inspect(container)}")
+
+    if network != "" do
+      create_network(network)
+    end
 
     case System.cmd(executable!(), build_start_params(container)) do
       {id, 0} ->
@@ -58,11 +62,46 @@ defmodule Docker do
     end
   end
 
+  @doc """
+  Create new docker network for stack
+  """
+  @spec create_network(binary) :: {:ok, binary} | {:error, term}
+  def create_network(id) do
+    Logger.debug("Creating new docker network #{id}")
+
+    case System.cmd(executable!(), ["network", "create", id]) do
+      {res, 0} ->
+        {:ok, String.replace(res, "\n", "")}
+
+      {err, exit_status} ->
+        Logger.error("Failed to create network with code: #{exit_status} - #{inspect(err)}")
+        {:error, err}
+    end
+  end
+
+  @doc """
+  Remove docker network
+  """
+  @spec rm_network(binary) :: :ok | {:error, term}
+  def rm_network(id) do
+    Logger.debug("Removing new docker network #{id}")
+
+    case System.cmd(executable!(), ["network", "rm", id]) do
+      {_res, 0} ->
+        :ok
+
+      {err, exit_status} ->
+        Logger.error("Failed to create network with code: #{exit_status} - #{inspect(err)}")
+        {:error, err}
+    end
+  end
+
   defp build_start_params(%Container{image: image} = container) do
     [
       "run",
-      "--rm",
+      # "--rm",
       "-d",
+      build_network(container),
       build_name(container),
       build_ports(container),
       build_env(container),
@@ -73,7 +112,11 @@ defmodule Docker do
   end
 
   defp build_name(%Container{name: ""}), do: ""
-  defp build_name(%Container{name: name}), do: ["--name", name]
+  defp build_name(%Container{name: name}), do: ["--name", name, "-h", name]
+
+  defp build_network(%Container{network: ""}), do: ""
+  defp build_network(%Container{network: network}), do: ["--network", network]
+  defp build_network(_container), do: ""
 
   defp build_ports(%Container{ports: []}), do: ""
 
@@ -96,6 +139,11 @@ defmodule Docker do
   end
 
   defp random_string(length \\ 48) do
-    :crypto.strong_rand_bytes(length) |> Base.url_encode64() |> binary_part(0, length)
+    length
+    |> :crypto.strong_rand_bytes()
+    |> Base.url_encode64()
+    |> binary_part(0, length)
+    |> String.replace("_", "")
+    |> String.replace(".", "")
   end
 end

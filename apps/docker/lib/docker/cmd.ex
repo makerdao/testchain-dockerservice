@@ -31,7 +31,7 @@ defmodule Docker.Cmd do
     res =
       Docker
       |> Task.async(:start_rm, [container])
-      |> Task.await()
+      |> Task.await(@timeout)
 
     {:reply, res, state}
   end
@@ -40,7 +40,7 @@ defmodule Docker.Cmd do
     res =
       Docker
       |> Task.async(:stop, [id])
-      |> Task.await()
+      |> Task.await(@timeout)
 
     {:reply, res, state}
   end

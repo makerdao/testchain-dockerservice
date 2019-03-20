@@ -99,7 +99,7 @@ defmodule Docker do
   defp build_start_params(%Container{image: image} = container) do
     [
       "run",
-      # "--rm",
+      "--rm",
       "-d",
       build_network(container),
       build_name(container),
@@ -112,7 +112,8 @@ defmodule Docker do
   end
 
   defp build_name(%Container{name: ""}), do: ""
-  defp build_name(%Container{name: name}), do: ["--name", name, "-h", name]
+  defp build_name(%Container{name: name}), do: ["--name", name, "-h", name, "--network-alias", name]
+  defp build_name(_container), do: ""
 
   defp build_network(%Container{network: ""}), do: ""
   defp build_network(%Container{network: network}), do: ["--network", network]
@@ -143,7 +144,9 @@ defmodule Docker do
     |> :crypto.strong_rand_bytes()
     |> Base.url_encode64()
     |> binary_part(0, length)
+    |> String.replace("-", "")
     |> String.replace("_", "")
     |> String.replace(".", "")
+    |> String.downcase()
   end
 end

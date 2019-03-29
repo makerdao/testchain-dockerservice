@@ -32,6 +32,11 @@ defmodule Docker do
       create_network(network)
     end
 
+    # container
+    # |> build_start_params()
+    # |> Enum.join(" ")
+    # |> IO.inspect()
+
     case System.cmd(executable!(), build_start_params(container)) do
       {id, 0} ->
         id = String.replace(id, "\n", "")
@@ -112,7 +117,8 @@ defmodule Docker do
   end
 
   defp build_name(%Container{name: ""}), do: ""
-  defp build_name(%Container{name: name}), do: ["--name", name, "-h", name, "--network-alias", name]
+  # defp build_name(%Container{name: name}), do: ["--name", name, "-h", name, "--network-alias", name]
+  defp build_name(%Container{name: name}), do: ["--name", name]
   defp build_name(_container), do: ""
 
   defp build_network(%Container{network: ""}), do: ""
@@ -128,7 +134,7 @@ defmodule Docker do
   end
 
   defp build_port({port, to_port}), do: ["-p", "#{port}:#{to_port}"]
-  defp build_port(port) when is_binary(port), do: ["-p", "#{port}:#{port}"]
+  defp build_port(port) when is_binary(port) or is_integer(port), do: ["-p", "#{port}:#{port}"]
   defp build_port(_), do: ""
 
   defp build_env(%Container{env: []}), do: []

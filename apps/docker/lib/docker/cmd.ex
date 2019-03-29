@@ -27,6 +27,7 @@ defmodule Docker.Cmd do
     {:ok, nil}
   end
 
+  @doc false
   def handle_call({:start, %Container{} = container}, _from, state) do
     res =
       Docker
@@ -36,6 +37,7 @@ defmodule Docker.Cmd do
     {:reply, res, state}
   end
 
+  @doc false
   def handle_call({:stop, id}, _from, state) do
     res =
       Docker
@@ -43,6 +45,16 @@ defmodule Docker.Cmd do
       |> Task.await(@timeout)
 
     {:reply, res, state}
+  end
+
+  @doc false
+  def handle_cast(:prune_networks, _from, state) do
+    res =
+      Docker
+      |> Task.async(:prune_networks, [])
+      |> Task.await(@timeout)
+
+    {:noreply, state}
   end
 
   @doc """

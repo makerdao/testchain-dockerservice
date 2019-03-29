@@ -96,7 +96,24 @@ defmodule Docker do
         :ok
 
       {err, exit_status} ->
-        Logger.error("Failed to create network with code: #{exit_status} - #{inspect(err)}")
+        Logger.error("Failed to remove network #{id} with code: #{exit_status} - #{inspect(err)}")
+        {:error, err}
+    end
+  end
+
+  @doc """
+  Remove all unused docker networks
+  """
+  @spec prune_networks() :: :ok | {:error, term}
+  def prune_networks() do
+    Logger.debug("Removing all docker unused networks")
+
+    case System.cmd(executable!(), ["network", "prune", "-f"]) do
+      {_res, 0} ->
+        :ok
+
+      {err, exit_status} ->
+        Logger.error("Failed to remove networks with code: #{exit_status} - #{inspect(err)}")
         {:error, err}
     end
   end

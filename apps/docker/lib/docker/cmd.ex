@@ -48,11 +48,10 @@ defmodule Docker.Cmd do
   end
 
   @doc false
-  def handle_cast(:prune_networks, _from, state) do
-    res =
-      Docker
-      |> Task.async(:prune_networks, [])
-      |> Task.await(@timeout)
+  def handle_cast(:prune_networks, state) do
+    Docker
+    |> Task.async(:prune_networks, [])
+    |> Task.await(@timeout)
 
     {:noreply, state}
   end

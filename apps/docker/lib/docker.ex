@@ -118,6 +118,23 @@ defmodule Docker do
     end
   end
 
+  @doc """
+  Join container to network
+  """
+  @spec join_network(binary, binary) :: {:ok, term} | {:error, term}
+  def join_network(id, container) do
+    Logger.debug("Adding new docker container #{container} to network #{id}")
+
+    case System.cmd(executable!(), ["network", "connect", id, container]) do
+      {res, 0} ->
+        {:ok, String.replace(res, "\n", "")}
+
+      {err, exit_status} ->
+        Logger.error("Failed to create network with code: #{exit_status} - #{inspect(err)}")
+        {:error, err}
+    end
+  end
+
   defp build_start_params(%Container{image: image} = container) do
     [
       "run",

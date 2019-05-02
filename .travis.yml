@@ -1,0 +1,36 @@
+language: elixir
+dist: xenial
+services: docker
+branches: # build all
+  only:
+  - gh-pages
+  - /.*/
+before_install:
+  - docker pull nats:linux
+  - docker run -d -p 4222:4222 nats:linux
+# before_script:
+#   - npm install -g ganache-cli
+
+# env:
+#   global:
+#     - GANACHE_EXECUTABLE=ganache-cli
+
+elixir:
+  - '1.7'
+otp_release: '21.1'
+
+cache:
+  directories:
+    # - _build
+    - deps
+
+script:
+  - mix test
+
+after_success:
+  - |
+    if [ "$TRAVIS_BRANCH" == "master" ]; then
+      echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      make build TAG=dev;
+      make docker-push TAG=dev;
+    fi

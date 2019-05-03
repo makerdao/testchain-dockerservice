@@ -73,7 +73,6 @@ defmodule Docker.Cmd do
   def start(%Container{} = container),
     do: GenServer.call(__MODULE__, {:start, container}, @timeout)
 
-
   @doc """
   Stop runing continer
   """

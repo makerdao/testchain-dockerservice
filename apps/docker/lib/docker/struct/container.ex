@@ -17,13 +17,4 @@ defmodule Docker.Struct.Container do
             network: "",
             ports: [],
             env: %{}
-
-  def test() do
-    %__MODULE__{
-      image: "postgres",
-      name: "pg_test",
-      ports: [5432],
-      env: %{"POSTGRES_PASSWORD" => "portgres"}
-    }
-  end
 end

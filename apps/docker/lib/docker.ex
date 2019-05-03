@@ -151,6 +151,7 @@ defmodule Docker do
   end
 
   defp build_name(%Container{name: ""}), do: ""
+
   # defp build_name(%Container{name: name}), do: ["--name", name, "-h", name, "--network-alias", name]
   defp build_name(%Container{name: name}), do: ["--name", name]
   defp build_name(_container), do: ""

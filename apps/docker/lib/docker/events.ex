@@ -4,6 +4,8 @@ defmodule Docker.Events do
   """
   use GenServer
 
+  alias Docker.Struct.Event
+
   require Logger
 
   @doc false
@@ -35,15 +37,28 @@ defmodule Docker.Events do
   def handle_info({_port, {:data, msg}}, port) do
     Logger.debug("Got docker event: #{inspect(msg)}")
 
-    Docker.Nats.push(
-      {Application.get_env(:docker, :nats_docker_events_topic, "Docker.Events"), msg}
-    )
+    case Jason.decode(msg) do
+      {:ok, data} ->
+        event = %Event{
+          id: Map.get(data, "id"),
+          event: Map.get(data, "status"),
+          container: Map.get(data, "from"),
+          attributes: Kernel.get_in(data, ["Actor", "Attributes"])
+        }
+
+        Docker.Nats.push(
+          {Application.get_env(:docker, :nats_docker_events_topic, "Docker.Events"), event}
+        )
+
+      {:error, err} ->
+        Logger.error("Failed to parse docker event #{inspect(err)}")
+    end
 
     {:noreply, port}
   end
 
-  def handle_info(msg, port) do
-    IO.inspect(msg)
+  def handle_info(_msg, port) do
+    # IO.inspect(msg)
     {:noreply, port}
   end
 
@@ -84,7 +99,11 @@ defmodule Docker.Events do
       "--filter",
       "event=stop",
       "--filter",
-      "event=kill"
+      "event=kill",
+      "--filter",
+      "type=container",
+      "--format",
+      "{{json .}}"
     ]
   end
 end

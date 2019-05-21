@@ -28,6 +28,11 @@ run: ## Run the app in Docker
 		--rm -it $(DOCKER_ID_USER)/$(APP_NAME):$(TAG)
 .PHONY: run
 
+docker-push:
+	@echo "Pushing docker image"
+	@docker push $(DOCKER_ID_USER)/$(APP_NAME):$(TAG)
+.PHONY: docker-push
+
 dev: ## Run local node with correct values
 	@iex --name dockerservice@127.0.0.1 -S mix
 .PHONY: dev

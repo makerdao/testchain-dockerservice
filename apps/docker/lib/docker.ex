@@ -6,6 +6,7 @@ defmodule Docker do
   require Logger
 
   alias Docker.Struct.Container
+  alias Docker.ContainerSupervisor
 
   @doc """
   Get docker executable
@@ -32,15 +33,22 @@ defmodule Docker do
       create_network(network)
     end
 
-    # container
-    # |> build_start_params()
-    # |> Enum.join(" ")
-    # |> IO.inspect()
+    reserved =
+      container
+      |> Map.get(:ports, [])
+      |> Enum.map(&reserve_ports/1)
+
+    container = %Container{container | ports: reserved}
 
     case System.cmd(executable!(), build_start_params(container)) do
       {id, 0} ->
         id = String.replace(id, "\n", "")
-        {:ok, %Container{container | id: id}}
+        container = %Container{container | id: id}
+
+        res = ContainerSupervisor.start_container(container)
+        Logger.debug(fn -> "New container started with #{inspect(res)}" end)
+
+        {:ok, container}
 
       {err, exit_status} ->
         Logger.error("Failed to start container with code: #{exit_status} - #{inspect(err)}")
@@ -169,7 +177,7 @@ defmodule Docker do
   end
 
   defp build_port({port, to_port}), do: ["-p", "#{port}:#{to_port}"]
-  defp build_port(port) when is_binary(port) or is_integer(port), do: ["-p", "#{port}:#{port}"]
+  defp build_port(port) when is_integer(port), do: ["-p", "#{port}:#{port}"]
   defp build_port(_), do: ""
 
   defp build_env(%Container{env: []}), do: []
@@ -190,4 +198,10 @@ defmodule Docker do
     |> String.replace(".", "")
     |> String.downcase()
   end
+
+  # Reserve ports
+  defp reserve_ports(port) when is_integer(port),
+    do: {Docker.PortMapper.random(), port}
+
+  defp reserve_ports(port), do: port
 end

@@ -4,7 +4,7 @@ defmodule Docker.Events do
   """
   use GenServer
 
-  alias Docker.Struct.Event
+  alias Docker.Struct.{Container, Event}
 
   require Logger
 
@@ -45,6 +45,10 @@ defmodule Docker.Events do
           container: Map.get(data, "from"),
           attributes: Kernel.get_in(data, ["Actor", "Attributes"])
         }
+
+        if event.event == "die" do
+          Container.terminate(event.id)
+        end
 
         Docker.Nats.push(
           {Application.get_env(:docker, :nats_docker_events_topic, "Docker.Events"), event}

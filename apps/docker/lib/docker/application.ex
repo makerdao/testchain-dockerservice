@@ -10,6 +10,8 @@ defmodule Docker.Application do
     children = [
       # Starts a worker by calling: Docker.Worker.start_link(arg)
       # {Docker.Worker, arg},
+      Docker.ContainerSupervisor,
+      Docker.PortMapper,
       Docker.Events,
       Docker.Nats,
       Docker.Cmd,

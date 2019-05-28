@@ -13,6 +13,7 @@ defmodule Docker.Struct.Container do
           id: binary,
           image: binary,
           name: binary,
+          description: binary,
           network: binary,
           ports: [pos_integer | {pos_integer, pos_integer}],
           env: map()
@@ -21,6 +22,7 @@ defmodule Docker.Struct.Container do
   defstruct id: "",
             image: "",
             name: "",
+            description: "",
             network: "",
             ports: [],
             env: %{}

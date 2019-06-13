@@ -19,5 +19,4 @@ defmodule Docker.ContainerSupervisor do
   @spec start_container(Container.t()) :: DynamicSupervisor.on_start_child()
   def start_container(%Container{} = container),
     do: DynamicSupervisor.start_child(__MODULE__, {Container, container})
-
 end

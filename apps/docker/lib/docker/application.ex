@@ -15,7 +15,8 @@ defmodule Docker.Application do
       Docker.Events,
       Docker.Nats,
       Docker.Cmd,
-      Docker.BackendProxyNodeConnector
+      Docker.BackendProxyNodeConnector,
+      Docker.NetworkRemover
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

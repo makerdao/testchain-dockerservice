@@ -16,10 +16,13 @@ script:
 - mix test
 deploy:
 - provider: script
-  script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    && make build-base-image && make build-image TAG=dev && make docker-push TAG=dev
+  script:
+    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin &&
+    make build TAG=dev &&
+    make docker-push TAG=dev &&
   on:
     branch: add-dockerhub-credentials-to-travisyml
+  skip_cleanup: true
 notifications:
   webhooks:
     urls:

@@ -1,16 +1,14 @@
 language: elixir
+elixir: '1.7'
+otp_release: '21.1'
 dist: xenial
 services: docker
 branches:
   only:
-  - gh-pages
   - "/.*/"
 before_install:
 - docker pull nats:linux
 - docker run -d -p 4222:4222 nats:linux
-elixir:
-- '1.7'
-otp_release: '21.1'
 cache:
   directories:
   - deps
@@ -18,12 +16,18 @@ script:
 - mix test
 after_success:
 - |
-  if [ "$TRAVIS_BRANCH" == "master" ]; then
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
     make build TAG=dev;
     make docker-push TAG=dev;
-  fi
 env:
   global:
   - secure: hcYmrNneWz5Boin3k9EYw346x+Gk53SSX9anOI+wnnHJir0f47cKGmtLHrVDrZmN/Gio+pw4ZPvLmwr3F9fsRk9OMzzg/Jvc94YCjPEvKoAWFbklLRpHgSImVTt3YZVyb2mQ9jUwk8F/KanpmcGDk34qzWM5IomspXtz3t+EwksvVTzrID0b5N5dEcSaoMB3g6HhBYrkjoiyBRsRRw4TWB0fc/hvSqVNXCKLq/Jtoa6lvXpQL6xVRVYTms7onGcIWa/Z60u0Az+Z/yt8ei0OwCtb3IFWQ4C3ja1Pxn/p0ueR9NNDq9JEZDe1EqlooK4YB3OwTjKq7A779Pxf7jc4oZO/UiyXWcaiiqkMCTAELpqzDCCdiUYUMzLz9JEfuWEhaiTlto0lMO4s9SeuM5JcC/po6DSSFX+iar2KY0N+L75ytpeQsBWl/ZYgWogPpfwZEn/m1TeILGTRat+FIpniG8XDcCOk0KecYXsIkG7UCYiZOTNZrfnRDyUHb2l9NYHW5lEBwFsalBVWaX+FD7ldI9U4SMkVXHjSueCvuz2CHEF6f0SBhvPxJebeulUGOseiMY557GmgjM9/eQ9pEzkMAN1KZjmNTtXk+Ml0rzpWJBA1coOpGov5pQgaK/Lz3C7zt8eOGBhkIgKmjCgdH6XP41k0dEDCiJZlADFDqe8ckRw=
   - secure: i3Wr97iGdTHNf2uk6KOCPWga4i2Qyr5aryF63PlkI2OJls+n3m3u8EJWWM9kRpqmG8hgSEfcUe/x6wArvrEtQUyDeMwvOiU1+R9Ljunws1Z+1S29TxTKl4ptgx61wUM/MOrC/c377VYK/Hg2bzS6DgwXXZ9WgGMUStQj3IAAo9zNOWnEURNPkJkCa/CsFkyVEdCQlz135uZLJXPQCqrc+hN+zRDjhld00Fh9GKikuORl92XYtNEP/XuOTfpp+wYnZFmnamNo53G2EPiTrpHf74eArO72z7nMSWH81oGOVB/fVMsLVN9If8JJya9CJkGVDxwy8AWytUCTcSPb/ddjsCr5ivr/+ySy+jHknwhl50tN8d6o/asLXdVGz4bLIgFL4MSW1NENqifa0SSKR6quNsgRghnXJx5tCECoQPfxSuPhcBAc3UQ4Ootgt5Gm3+5s+qWd2dIBy5NctwxYY4UuVKj15jHgCP0EBz+FIdo6C7Y0uZ52nMHKpUE/UgztBpz4i5Ds35q/0AFRZn3mr+qGEJCspsW/i8fzYlhbnbcHkSfmIO2J6kj/7VL7pys1+/PskmMKPem9Kl1596PcsA+Vc/6ojJyC8IbhRpXlGtc6N5eqbZuXi9kxMFWW5NXbLV4ij7+ENkoFP4n4BvIFvsAePrvpGL2x79SllAVyhozfkFA=
+
+
+notifications:
+  webhooks:
+    urls:
+      - secure: "qHhiKFev+Ua9vNOdPGU/Vxjix1GCp9cPSVsnx3zCI9A2vdHmgfAxbKhvB5989g06XqYHkp+4ACV1TWfcmP3X1+garHi3CxmZwoYMosJ8HdIvHG2skfmFeaSnLTqBgtVYXllGZ5VhgonV1srZo7VaopjkxSzyvcMHzpIxUjSjWY6Jn0qtTpVli9i4CNq/wdQC3JBBfiS13j+8jh/irUnKZ6BBdVnLCO+MQ8NvcIkv/QQcGIM2wzp7y73dKJ3gX14JFyJXjzw474bm/taN2Te5H9iR+ZbxxAu2ftVyaXAf2KHIeU4Zmdm4T220BqvhKzkAjMZ2Z1aHTPv3janSm4BiE2Az5i3Mu+o1PwCRyXilIDprdyPSSD3gmDnrXaWYTdOkxxGQWLQXWrTmp18Bp+/cV566bxGemH7QCpYC72IuWOl6qn9FZ4Z5MTVlgMvGyTXoQRtsOCjwkriBAcjIsGO5H+gpw8OTmryzvlxYF/LL3w3LoWxYzGB11LQrg6kCjOFuP/7kfu1sb0lZhz/zZQn9BxN3mS7dOnEC/QhmxlDjjqbF/dI0wPCk9Wd6y3pYxpfobRBT68Jhqz5zBr3LoKttu/F19XoT/RwPtW3vI7NS0lRTplXPgz30P2hO12f9YCrOi502zbF2aRC/AARIc0xdXyXOy0Qvw/SZ/hxZhB5chgc="
+    on_failure: always
+    on_success: never

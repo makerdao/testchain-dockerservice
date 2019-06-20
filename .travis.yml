@@ -1,36 +1,35 @@
 language: elixir
+elixir: '1.7'
+otp_release: '21.1'
 dist: xenial
 services: docker
-branches: # build all
+branches:
   only:
-  - gh-pages
-  - /.*/
+  - "/.*/"
 before_install:
-  - docker pull nats:linux
-  - docker run -d -p 4222:4222 nats:linux
-# before_script:
-#   - npm install -g ganache-cli
-
-# env:
-#   global:
-#     - GANACHE_EXECUTABLE=ganache-cli
-
-elixir:
-  - '1.7'
-otp_release: '21.1'
-
+- docker pull nats:linux
+- docker run -d -p 4222:4222 nats:linux
 cache:
   directories:
-    # - _build
-    - deps
-
+  - deps
 script:
-  - mix test
-
-after_success:
-  - |
-    if [ "$TRAVIS_BRANCH" == "master" ]; then
-      echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-      make build TAG=dev;
-      make docker-push TAG=dev;
-    fi
+- mix test
+deploy:
+- provider: script
+  script: >-
+    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin &&
+    make build TAG=dev &&
+    make docker-push TAG=dev
+  on:
+    branch: master
+  skip_cleanup: true
+notifications:
+  webhooks:
+    urls:
+    - secure: qHhiKFev+Ua9vNOdPGU/Vxjix1GCp9cPSVsnx3zCI9A2vdHmgfAxbKhvB5989g06XqYHkp+4ACV1TWfcmP3X1+garHi3CxmZwoYMosJ8HdIvHG2skfmFeaSnLTqBgtVYXllGZ5VhgonV1srZo7VaopjkxSzyvcMHzpIxUjSjWY6Jn0qtTpVli9i4CNq/wdQC3JBBfiS13j+8jh/irUnKZ6BBdVnLCO+MQ8NvcIkv/QQcGIM2wzp7y73dKJ3gX14JFyJXjzw474bm/taN2Te5H9iR+ZbxxAu2ftVyaXAf2KHIeU4Zmdm4T220BqvhKzkAjMZ2Z1aHTPv3janSm4BiE2Az5i3Mu+o1PwCRyXilIDprdyPSSD3gmDnrXaWYTdOkxxGQWLQXWrTmp18Bp+/cV566bxGemH7QCpYC72IuWOl6qn9FZ4Z5MTVlgMvGyTXoQRtsOCjwkriBAcjIsGO5H+gpw8OTmryzvlxYF/LL3w3LoWxYzGB11LQrg6kCjOFuP/7kfu1sb0lZhz/zZQn9BxN3mS7dOnEC/QhmxlDjjqbF/dI0wPCk9Wd6y3pYxpfobRBT68Jhqz5zBr3LoKttu/F19XoT/RwPtW3vI7NS0lRTplXPgz30P2hO12f9YCrOi502zbF2aRC/AARIc0xdXyXOy0Qvw/SZ/hxZhB5chgc=
+    on_failure: always
+    on_success: never
+env:
+  global:
+  - secure: LDr9YZ299b6OFLh43LtFXR3SKwMLlB7yZoxORoI/2h+KBrJZJegTB8kXsWyoA3IadKjwN8DSpRpojyyLnum2NumbCNp+dgoRMgrySGklL4GJe0orpevSmVmNvqrfJq54v99uvV5pRL9mOOOZUy3phT3HxBprl4tP/+enlL5xVwkgul5Oqy6iL8ZnwkwLJKPkoH35DD9PV8lSzaoA2eMMK+iUl0zk+PenWDIG1u5CQWhNZdhPOcaohhcXwjgeJG1vIbH3xGFarPkDgdTafPhhdkDlmoHviFI5I7vtvvCOVz1Q9tD8PFRToErQyk0dC7i4sX7RcNPLFDCBfVl9JdeFccEd01ZQX+xvDlvEqJkCrXPggqRm75sWnsRJbiKU3hMk4RAOrgRkxuJtjGgZLkGYGwty4OYNsY7+v1lY7Uy6rd5QIWSlxObo6SEq2Tt69KHo8m1NVj2bmiJDfZcZChhY+QvlcGd9uaI6KYKhSU8fT+2kFDY5ZwKLoPjYtEmuvuGr7vcd1SOTy8z3s3RtfUvllvIiWWoKRVQS7ElOVvl930DX2xtuzjCl3jyQ1cSEUGSvtv8/zxdjWk3FYQj2vhzhXppgl2MwXkpMg5ekcF6pcWId8uc6XiEQWZcKy0LgF1wX2VxG6dv2cECfsOYJnlDm35mluSSMNTWUmovDp1627L8=
+  - secure: j2Fkyq2Vazl7NylveYoRx1gu1OZJrll+Gge3Mj79y7kDBHPnjVYal0iQX9QGF+fdfoTZAkmQhB7GYgb3Tr8Lubr2LiyrXOyKzvHW2DYlteT/3SsMvffE6hMjCXuIOIzVoWpxIUE0tuMb1c0hhfO3Vq3PsJFxBe57TfAEvSzFQ/UYIouSHBkbLhzIiysqCzvlyuqUlfj6TIr8wNXGWvKrF2Eem33Lru+/JIjCfSSs43ggLPv8awu1HWoMJu1IsP+IyXTZQ25JVMS+qfkGEAGbZ2fWmKqx/o+Cn3OKD/AgQIcc2k2WAVHRbU/+QAroqQMenxhK+aaLzQ3UbtSj4Bgk4r/gqqJdCX/1IjD00yCnbSiDe6toUzrqIQC2fKCYs2pClpolXEUzLR5wv+LFlF3LSN+7zN/9HcekiiargA78nt/Noyubu8WdLamnOkRHyUmQCJLi+0r9rLgeLMlglttHsXe5S1a11T445yyKX7nufMUC6yDUE3jP+EpW8kCOBBG2UYDhh0grVcA7sGlwI0KVZ4qUUr61Ha6xZqemXxPZfdQIwRfPp1YDic5jHXMPw8ojIQnoXMrNdIDT3LwVjQkRORXaFHG7tA39sxTM05nKfW0K50WuBVH1799Ax66SP4CDTODj6O6WXTASH4dY8MzmXZabaMt2fjtq+6EiZmkkR8k=

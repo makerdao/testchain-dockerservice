@@ -21,8 +21,16 @@ deploy:
     make build TAG=dev &&
     make docker-push TAG=dev
   on:
-    branch: master
+    branch: develop
   skip_cleanup: true
+- provider: script
+  script: >-
+    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin &&
+    make build TAG=latest &&
+    make docker-push TAG=latest
+  on:
+    branch: master
+
 notifications:
   webhooks:
     urls:
